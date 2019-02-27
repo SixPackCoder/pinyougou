@@ -1,30 +1,15 @@
-app.controller('brandController', function ($scope, $http, brandService) {
+app.controller('brandController', function ($scope, brandService, $controller) {
+    $controller('baseController', {$scope: $scope});
+
     //读取列表数据绑定到表单中
     //查询所有
     $scope.findAll = function () {
-        bandService.findAll.success(
+        brandService.findAll.success(
             function (response) {
                 $scope.list = response;
             }
         );
     };
-
-    //分页控件配置
-    //分页控件配置currentPage:当前页   totalItems :总记录数  itemsPerPage:每页记录数  perPageOptions :分页选项  onChange:当页码变更后自动触发的方法
-    $scope.paginationConf = {
-        currentPage: 1,
-        totalItems: 10,
-        itemsPerPage: 10,
-        perPageOptions: [10, 20, 30, 40, 50],
-        onChange: function () {
-            $scope.reloadList();//重新加载
-        }
-    }
-    //刷新列表
-    $scope.reloadList = function () {
-        $scope.search($scope.paginationConf.currentPage, $scope.paginationConf.itemsPerPage);
-    }
-
     //分页查询
     $scope.findPage = function (page, size) {
         brandService.findPage(page, size).success(
@@ -35,15 +20,14 @@ app.controller('brandController', function ($scope, $http, brandService) {
                 $scope.paginationConf.totalItems = response.total;
             }
         );
-    }
-
+    };
     //新建
     $scope.add = function () {
         var object = null;
         if ($scope.entity.id != null) {
-            object = bandService.update($scope.entity)
+            object = brandService.update($scope.entity)
         } else {
-            object = bandService.add($scope.entity)
+            object = brandService.add($scope.entity)
         }
         object.success(
             function (response) {
@@ -61,18 +45,6 @@ app.controller('brandController', function ($scope, $http, brandService) {
             function (response) {
                 $scope.entity = response;
             })
-    };
-
-    //定义一个集合用于存放被选中的id
-    $scope.selectedIds = [];
-    //更新ID集合
-    $scope.updateIds = function ($event, id) {
-        if ($event.target.checked) {
-            $scope.selectedIds.push(id);
-        } else {
-            var index = $scope.selectedIds.indexOf(id);
-            $scope.selectedIds.splice(index, 1);
-        }
     };
     //删除
     $scope.deleteByIds = function () {
@@ -98,7 +70,7 @@ app.controller('brandController', function ($scope, $http, brandService) {
     //条件搜索查询  带分页功能
     $scope.searchEntity = {};//定义搜索对象
     $scope.search = function (page, size) {
-        brandService.search(page,size,$scope.searchEntity).success(
+        brandService.search(page, size, $scope.searchEntity).success(
             function (response) {
                 if (response != null) {//不为空
                     //显示当前页数据
@@ -113,4 +85,4 @@ app.controller('brandController', function ($scope, $http, brandService) {
             }
         );
     }
-}
+})
