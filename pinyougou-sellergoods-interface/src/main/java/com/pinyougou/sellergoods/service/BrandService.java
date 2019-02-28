@@ -4,6 +4,7 @@ import com.pinyougou.pojo.TbBrand;
 import entity.PageResult;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 品牌服务层接口
@@ -56,9 +57,16 @@ public interface BrandService {
 
     /**
      * 条件搜索分页查询
+     *
      * @param tbBrand
      * @return
      */
-    PageResult searchPage(TbBrand tbBrand,int pageNum, int pageSize);
+    PageResult searchPage(TbBrand tbBrand, int pageNum, int pageSize);
+
+    /**
+     * 查询所有品牌 以[{id:1,text:"联想"}]格式返回
+     * @return
+     */
+    List<Map> selectOptionList();
 
 }

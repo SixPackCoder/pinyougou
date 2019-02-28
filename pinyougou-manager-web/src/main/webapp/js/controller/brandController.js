@@ -85,4 +85,5 @@ app.controller('brandController', function ($scope, brandService, $controller) {
             }
         );
     }
+
 })

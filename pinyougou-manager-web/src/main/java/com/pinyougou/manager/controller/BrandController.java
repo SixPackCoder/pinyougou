@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 运营商的品牌控制层
@@ -90,6 +91,7 @@ public class BrandController {
 
     /**
      * 删除
+     *
      * @param ids
      * @return
      */
@@ -107,13 +109,24 @@ public class BrandController {
 
     /**
      * 条件搜索查询  带分页
+     *
      * @param tbBrand
      * @param page
      * @param size
      * @return
      */
     @RequestMapping("/search")
-    PageResult search(@RequestBody TbBrand tbBrand,int page,int size){
-       return brandService.searchPage(tbBrand,page,size);
+    PageResult search(@RequestBody TbBrand tbBrand, int page, int size) {
+        return brandService.searchPage(tbBrand, page, size);
+    }
+
+    /**
+     * 查询所有品牌 以[{id:1,text:"联想"}]格式返回
+     *
+     * @return
+     */
+    @RequestMapping("/selectOptionList")
+    List<Map> selectOptionList() {
+        return brandService.selectOptionList();
     }
 }

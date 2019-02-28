@@ -11,6 +11,7 @@ import entity.PageResult;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class BrandServiceImpl implements BrandService {
@@ -111,5 +112,15 @@ public class BrandServiceImpl implements BrandService {
             //否则直接返回空
             return null;
         }
+    }
+
+    /**
+     * 查询所有品牌 以[{id:1,text:"联想"}]格式返回
+     *
+     * @return
+     */
+    @Override
+    public List<Map> selectOptionList() {
+        return brandMapper.selectOptionList();
     }
 }
