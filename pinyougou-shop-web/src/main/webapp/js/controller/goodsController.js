@@ -1,5 +1,5 @@
 //控制层
-app.controller('goodsController', function ($scope, $controller, goodsService, uploadService) {
+app.controller('goodsController', function ($scope, $controller, goodsService, uploadService, itemCatService, typeTemplateService) {
 
     $controller('baseController', {$scope: $scope});//继承
 
@@ -104,14 +104,14 @@ app.controller('goodsController', function ($scope, $controller, goodsService, u
                 } else {
                     alert(response.message)
                 }
-            }).error(function() {
+            }).error(function () {
             alert("上传发生错误");
         });
 
     };
 
 
-    $scope.entity = {goods: {}, goodsDesc: {itemImages: []}};//定义页面实体结构
+    $scope.entity = {goods: {}, goodsDesc: {itemImages: [], specificationItems: []}};//定义页面实体结构
     $scope.add_image_entity = function () {
         $scope.entity.goodsDesc.itemImages.push($scope.image_entity)
     };
@@ -120,5 +120,113 @@ app.controller('goodsController', function ($scope, $controller, goodsService, u
     //删除商品图片
     $scope.remove_image_entity = function (index) {
         $scope.entity.goodsDesc.itemImages.splice(index, 1);
+    };
+
+    //读取一级分类
+    $scope.selectItemCat1List = function () {
+        itemCatService.findByParentId(0).success(
+            function (response) {
+                $scope.itemCat1List = response;
+            }
+        )
+    };
+
+    //读取二级分类
+    $scope.$watch('entity.goods.category1Id', function (newValue, oldValue) {
+        itemCatService.findByParentId(newValue).success(
+            function (response) {
+                $scope.itemCat2List = response;
+                //当检测到第一级分类发生改变 应清空第三季分类的显示内容和模板id
+                $scope.itemCat3List = {};
+                $scope.entity.goods.typeTemplateId = null;
+            }
+        )
+    });
+
+    //读取三级分类
+    $scope.$watch('entity.goods.category2Id', function (newValue, oldValue) {
+        itemCatService.findByParentId(newValue).success(
+            function (response) {
+                $scope.itemCat3List = response;
+                //当检测到第二级分类发生改变 应清空模板id
+                $scope.entity.goods.typeTemplateId = null
+            }
+        )
+    });
+
+    //读取模板id
+    $scope.$watch('entity.goods.category3Id', function (newValue, oldValue) {
+        itemCatService.findOne(newValue).success(
+            function (response) {
+                $scope.entity.goods.typeTemplateId = response.typeId;
+            }
+        );
+    });
+
+    //获取品牌列表 扩展属性 规格列表
+    $scope.$watch('entity.goods.typeTemplateId', function (newValue, oldValue) {
+        typeTemplateService.findOne(newValue).success(
+            function (response) {
+                $scope.typeTemplate = response;//获取到的是模板对象
+                // $scope.typeTemplate.brandIds获取的是一个json字符串  需要转换成json对象重新赋值
+                //获取的品牌列表
+                $scope.typeTemplate.brandIds = JSON.parse($scope.typeTemplate.brandIds);
+                //获取的扩展属性
+                //$scope.typeTemplate.customAttributeItems获取的是模板表中的扩展属性
+                //但是是赋值给需要保存的变量 goodsDesc表中的扩展属性
+                $scope.entity.goodsDesc.customAttributeItems = JSON.parse($scope.typeTemplate.customAttributeItems);
+            }
+        );
+
+        //获取规格列表
+        typeTemplateService.findSpecList(newValue).success(
+            function (response) {
+                $scope.SpecList = response;
+            }
+        );
+    });
+
+
+    //更新规格选项[{“attributeName”:”网络”,”attributeValue”:[“移动2G”,“移动3G”.... ]} , ....  ]中的key和value
+    $scope.updateSpecAttribute = function ($event, name, value) {
+        var object = $scope.searchObjectByKey($scope.entity.goodsDesc.specificationItems, 'attributeName', name);
+        if (object != null) {//集合里面有对象
+            if ($event.target.checked) {//被勾选
+                object.attributeValue.push(value);//就向attributeValue集合里面添加一个规格选项
+            } else {//否则是被取消勾选的话
+                object.attributeValue.splice(object.attributeValue.indexOf(value), 1);//attributeValue集合里面减少对应的一个规格选项
+                if (object.attributeValue.length == 0) {//如果attributeValue集合里面一个规格都没有了  那么对应的attributeName也应该消失
+                    $scope.entity.goodsDesc.specificationItems.splice($scope.entity.goodsDesc.specificationItems.indexOf(object), 1);
+                }
+            }
+        } else {//集合里面没有对象  那就向集合中添加attributeName和attributeValue集合
+            $scope.entity.goodsDesc.specificationItems.push(
+                {"attributeName": name, "attributeValue": [value]});
+        }
+    };
+
+    //生成sku列表  用到深克隆
+    $scope.createItemList = function () {
+        //初始化items列表
+        $scope.entity.itemList = [{spec: {}, price: 0, num: 998, status: '0', isDefault: '0'}];
+        var items = $scope.entity.goodsDesc.specificationItems;
+        for (var i = 0; i < items.length; i++) {
+            $scope.entity.itemList = addColumn($scope.entity.itemList, items[i].attributeName, items[i].attributeValue);
+        }
     }
-});	
+    //添加列值
+    addColumn = function (list, columnName, columnValues) {
+        var newList = [];
+        for (var i = 0; i < list.length; i++) {
+            var oldRow = list[i];
+            for (var j = 0; j < columnValues.length; j++) {
+                var newRow = JSON.parse(JSON.stringify(oldRow));//深克隆
+                newRow.spec[columnName] = columnValues[j];
+                newList.push(newRow)
+            }
+        }
+        return newList;
+    }
+
+
+});

@@ -33,15 +33,25 @@ app.controller('baseController', function ($scope) {
     $scope.jsonToString = function (jsonString, key) {
         var json = JSON.parse(jsonString);
         var value = "";
-        for (var i = 0; i <json.length ; i++) {
-            if(i>0){
-                value += ", "+json[i][key];
-            }else {
+        for (var i = 0; i < json.length; i++) {
+            if (i > 0) {
+                value += ", " + json[i][key];
+            } else {
                 value += json[i][key];
             }
         }
         return value;
     }
 
+    //[{“attributeName”:”网络”,”attributeValue”:[“移动2G”,“移动3G”.... ]} , ....  ]
+    //在list集合中查询key  有就返回该对象  没有就返回空
+    $scope.searchObjectByKey = function (list, key, keyValue) {
+        for (var i = 0; i < list.length; i++) {
+            if (list[i][key] ==keyValue){
+                return list[i];
+            }
+        }
+        return null;
+    }
 });
 

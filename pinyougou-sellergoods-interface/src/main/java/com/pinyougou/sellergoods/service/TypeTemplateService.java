@@ -1,5 +1,7 @@
 package com.pinyougou.sellergoods.service;
 import java.util.List;
+import java.util.Map;
+
 import com.pinyougou.pojo.TbTypeTemplate;
 
 import entity.PageResult;
@@ -57,5 +59,13 @@ public interface TypeTemplateService {
 	 * @return
 	 */
 	public PageResult findPage(TbTypeTemplate typeTemplate, int pageNum, int pageSize);
+
+	/**
+	 * 根据模板id查询到模板表中的specIds字段[{"id":27,"text":"网络"},{"id":32,"text":"机身内存"}]
+	 * 再根据字段中的id去规格选项表中查询所对应的的规格选项列表
+	 * @param id
+	 * @return
+	 */
+	List<Map> findSpecList(Long id);
 	
 }
