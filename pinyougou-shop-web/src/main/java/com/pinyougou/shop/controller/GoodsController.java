@@ -69,7 +69,14 @@ public class GoodsController {
 	 * @return
 	 */
 	@RequestMapping("/update")
-	public Result update(@RequestBody TbGoods goods){
+	public Result update(@RequestBody Goods goods){
+		//更新商品之前要判断  该商家修改之前商品是否属于该商家 还有修改之后的商品是否属于该商家
+		//获取当前登录的商家的sellerId
+		String id = SecurityContextHolder.getContext().getAuthentication().getName();
+		Goods goods1 = goodsService.findOne(goods.getGoods().getId());
+		if(!goods1.getGoods().getSellerId().equals(id)||!goods.getGoods().getSellerId().equals(id)){
+			return new Result(false,"非法操作");
+		}
 		try {
 			goodsService.update(goods);
 			return new Result(true, "修改成功");
@@ -81,11 +88,11 @@ public class GoodsController {
 	
 	/**
 	 * 获取实体
-	 * @param id
+	 * @param id  goodsId
 	 * @return
 	 */
 	@RequestMapping("/findOne")
-	public TbGoods findOne(Long id){
+	public Goods findOne(Long id){
 		return goodsService.findOne(id);		
 	}
 	
@@ -114,6 +121,9 @@ public class GoodsController {
 	 */
 	@RequestMapping("/search")
 	public PageResult search(@RequestBody TbGoods goods, int page, int rows  ){
+		//只能获取自己商家的商品  所有要给他设定sellerid的值
+		String sellerId = SecurityContextHolder.getContext().getAuthentication().getName();
+		goods.setSellerId(sellerId);
 		return goodsService.findPage(goods, page, rows);		
 	}
 	

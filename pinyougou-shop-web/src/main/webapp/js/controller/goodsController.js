@@ -1,5 +1,5 @@
 //控制层
-app.controller('goodsController', function ($scope, $controller, goodsService, uploadService, itemCatService, typeTemplateService) {
+app.controller('goodsController', function ($scope, $controller, $location, goodsService, uploadService, itemCatService, typeTemplateService) {
 
     $controller('baseController', {$scope: $scope});//继承
 
@@ -10,7 +10,7 @@ app.controller('goodsController', function ($scope, $controller, goodsService, u
                 $scope.list = response;
             }
         );
-    }
+    };
 
     //分页
     $scope.findPage = function (page, rows) {
@@ -20,21 +20,56 @@ app.controller('goodsController', function ($scope, $controller, goodsService, u
                 $scope.paginationConf.totalItems = response.total;//更新总记录数
             }
         );
-    }
+    };
 
     //查询实体
-    $scope.findOne = function (id) {
+    $scope.findOne = function () {
+        var id = $location.search()['id'];
+        if (id == null) {
+            return;
+        }
         goodsService.findOne(id).success(
             function (response) {
                 $scope.entity = response;
+                //向富文本编辑器添加内容
+                editor.html($scope.entity.goodsDesc.introduction)
+                //图片
+                $scope.entity.goodsDesc.itemImages = JSON.parse($scope.entity.goodsDesc.itemImages)
+                //显示扩展属性
+                $scope.entity.goodsDesc.customAttributeItems = JSON.parse($scope.entity.goodsDesc.customAttributeItems);
+                //显示规格属性
+                $scope.entity.goodsDesc.specificationItems = JSON.parse($scope.entity.goodsDesc.specificationItems)
+
+                //sku列表
+
+                for (var i = 0; i < $scope.entity.itemList.length ; i++) {
+                    $scope.entity.itemList[i].spec = JSON.parse( $scope.entity.itemList[i].spec);
+                }
             }
         );
+    };
+
+
+    //判断规格选项是否被选中  哪些被选中
+    $scope.checkAttributeValue = function (specName, optionName) {
+        var items = $scope.entity.goodsDesc.specificationItems;
+        var object = $scope.searchObjectByKey(items, 'attributeName', specName);
+        if(object!=null){
+            if (object.attributeValue.indexOf(optionName)>=0){
+                return true;
+            }else {
+                return false;
+            }
+        }else {
+            false;
+        }
     }
 
     //保存
     $scope.save = function () {
+        $scope.entity.goodsDesc.introduction = editor.html();
         var serviceObject;//服务层对象
-        if ($scope.entity.id != null) {//如果有ID
+        if ($scope.entity.goods.id != null) {//如果有ID
             serviceObject = goodsService.update($scope.entity); //修改
         } else {
             serviceObject = goodsService.add($scope.entity);//增加
@@ -42,14 +77,14 @@ app.controller('goodsController', function ($scope, $controller, goodsService, u
         serviceObject.success(
             function (response) {
                 if (response.success) {
-                    //重新查询
-                    $scope.reloadList();//重新加载
+                    alert("保存商品成功!");
+                    location.href="goods.html";//跳转到商品列表页
                 } else {
                     alert(response.message);
                 }
             }
         );
-    }
+    };
 
 
     //批量删除
@@ -63,7 +98,7 @@ app.controller('goodsController', function ($scope, $controller, goodsService, u
                 }
             }
         );
-    }
+    };
 
     $scope.searchEntity = {};//定义搜索对象
 
@@ -75,24 +110,7 @@ app.controller('goodsController', function ($scope, $controller, goodsService, u
                 $scope.paginationConf.totalItems = response.total;//更新总记录数
             }
         );
-    }
-
-    //新增商品
-    $scope.add = function (entity) {
-        $scope.entity.goodsDesc.introduction = editor.html();
-        goodsService.add($scope.entity).success(
-            function (response) {
-                if (response.success) {//新增成功
-                    alert("新建商品成功!");
-                    $scope.entity = {};//清空原有商品类
-                    //$scope.reloadList();//刷新列表
-                    editor.html("");//清空富文本编辑器内容
-                } else {
-                    alert(response.message);
-                }
-            }
-        );
-    }
+    };
 
     //上传文件
     $scope.uploadFile = function () {
@@ -174,10 +192,13 @@ app.controller('goodsController', function ($scope, $controller, goodsService, u
                 //获取的扩展属性
                 //$scope.typeTemplate.customAttributeItems获取的是模板表中的扩展属性
                 //但是是赋值给需要保存的变量 goodsDesc表中的扩展属性
-                $scope.entity.goodsDesc.customAttributeItems = JSON.parse($scope.typeTemplate.customAttributeItems);
+
+                //如果没有ID，则加载模板中的扩展数据
+                if ($location.search()['id'] == null) {
+                    $scope.entity.goodsDesc.customAttributeItems = JSON.parse($scope.typeTemplate.customAttributeItems);
+                }
             }
         );
-
         //获取规格列表
         typeTemplateService.findSpecList(newValue).success(
             function (response) {
@@ -213,7 +234,8 @@ app.controller('goodsController', function ($scope, $controller, goodsService, u
         for (var i = 0; i < items.length; i++) {
             $scope.entity.itemList = addColumn($scope.entity.itemList, items[i].attributeName, items[i].attributeValue);
         }
-    }
+    };
+
     //添加列值
     addColumn = function (list, columnName, columnValues) {
         var newList = [];
@@ -226,7 +248,27 @@ app.controller('goodsController', function ($scope, $controller, goodsService, u
             }
         }
         return newList;
-    }
+    };
 
+
+    //审核状态
+    // 未申请
+    // 申请中
+    // 审核通过
+    // 已驳回
+    $scope.status = ['未审核', '审核中', '审核通过', '已驳回'];
+
+    $scope.itemCatList = [];//商品分类列表
+    //商品的上级分类列表  与商品状态的处理方式差不多
+    $scope.findItemCatList = function () {
+        itemCatService.findAll().success(
+            function (response) {
+                for (var i = 0; i < response.length; i++) {
+                    //我们需要根据分类ID得到分类名称，所以我们将返回的分页结果以数组形式再次封装。
+                    $scope.itemCatList[response[i].id] = response[i].name;
+                }
+            }
+        )
+    }
 
 });

@@ -1,5 +1,5 @@
  //控制层 
-app.controller('goodsController' ,function($scope,$controller   ,goodsService){	
+app.controller('goodsController' ,function($scope,$controller,goodsService,itemCatService){
 	
 	$controller('baseController',{$scope:$scope});//继承
 	
@@ -55,11 +55,11 @@ app.controller('goodsController' ,function($scope,$controller   ,goodsService){
 	//批量删除 
 	$scope.dele=function(){			
 		//获取选中的复选框			
-		goodsService.dele( $scope.selectIds ).success(
+		goodsService.dele( $scope.selectedIds ).success(
 			function(response){
 				if(response.success){
 					$scope.reloadList();//刷新列表
-					$scope.selectIds=[];
+					$scope.selectedIds=[];
 				}						
 			}		
 		);				
@@ -74,6 +74,39 @@ app.controller('goodsController' ,function($scope,$controller   ,goodsService){
 				$scope.list=response.rows;	
 				$scope.paginationConf.totalItems=response.total;//更新总记录数
 			}			
+		);
+	}
+
+//审核状态
+	// 未申请
+	// 申请中
+	// 审核通过
+	// 已驳回
+	$scope.status = ['未审核', '审核中', '审核通过', '已驳回'];
+
+	$scope.itemCatList = [];//商品分类列表
+	//商品的上级分类列表  与商品状态的处理方式差不多
+	$scope.findItemCatList = function () {
+		itemCatService.findAll().success(
+			function (response) {
+				for (var i = 0; i < response.length; i++) {
+					//我们需要根据分类ID得到分类名称，所以我们将返回的分页结果以数组形式再次封装。
+					$scope.itemCatList[response[i].id] = response[i].name;
+				}
+			}
+		)
+	}
+	//审核商品  修改商品状态
+	$scope.updateStatus = function (status) {
+		goodsService.updateStatus($scope.selectedIds,status).success(
+		function (response) {
+			if(response.success){//成功
+				$scope.reloadList();//刷新列表
+				$scope.selectedIds=[];//清空ID集合
+			}else{
+				alert(response.message);
+			}
+		}
 		);
 	}
     
