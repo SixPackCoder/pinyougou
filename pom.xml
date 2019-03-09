@@ -19,6 +19,10 @@
         <module>pinyougou-content-interface</module>
         <module>pinyougou-content-service</module>
         <module>pinyougou-portal-web</module>
+        <module>pinyougou-solr-util</module>
+        <module>pinyougou-search-interface</module>
+        <module>pinyougou-search-service</module>
+        <module>pinyougou-search-web</module>
         <!--<module>pinyougou-shop-web</module>-->
     </modules>
     <packaging>pom</packaging>
@@ -265,6 +269,7 @@
                 <artifactId>xml-apis</artifactId>
                 <version>1.4.01</version>
             </dependency>
+
         </dependencies>
 
     </dependencyManagement>
