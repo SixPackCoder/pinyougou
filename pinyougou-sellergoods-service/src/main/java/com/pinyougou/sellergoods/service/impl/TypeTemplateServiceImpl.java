@@ -19,6 +19,7 @@ import com.pinyougou.pojo.TbTypeTemplateExample.Criteria;
 import com.pinyougou.sellergoods.service.TypeTemplateService;
 
 import entity.PageResult;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -35,6 +36,9 @@ public class TypeTemplateServiceImpl implements TypeTemplateService {
 
     @Autowired
     private TbSpecificationOptionMapper specificationOptionMapper;
+
+    @Autowired
+    private RedisTemplate redisTemplate;
 
     /**
      * 查询全部
@@ -117,6 +121,7 @@ public class TypeTemplateServiceImpl implements TypeTemplateService {
         }
 
         Page<TbTypeTemplate> page = (Page<TbTypeTemplate>) typeTemplateMapper.selectByExample(example);
+        saveToRedis();//存入数据到缓存
         return new PageResult(page.getTotal(), page.getResult());
     }
 
@@ -124,6 +129,7 @@ public class TypeTemplateServiceImpl implements TypeTemplateService {
      * 根据模板id查询到模板表中的specIds字段[{"id":27,"text":"网络"},{"id":32,"text":"机身内存"}]
      * 再根据字段中的id去规格选项表中查询所对应的的规格选项列表
      * [{"id":27,"text":"网络"},{"id":32,"text":"机身内存"}]
+     * 根据模板ID查询规格列表
      *
      * @param id
      * @return
@@ -149,6 +155,21 @@ public class TypeTemplateServiceImpl implements TypeTemplateService {
             map.put("options",optionList);
         }
         return list;
+    }
+
+    private void saveToRedis(){
+        //获取模板数据
+        List<TbTypeTemplate> typeTemplateList = findAll();
+        for (TbTypeTemplate tbTypeTemplate : typeTemplateList) {
+            //存储品牌列表  模板id作为key  品牌列表作为value
+            List<Map> brandList = JSON.parseArray(tbTypeTemplate.getBrandIds(), Map.class);
+            redisTemplate.boundHashOps("brandList").put(tbTypeTemplate.getId(),brandList);
+
+            //存储规格列表  模板id作为key  规格列表作为value
+            List<Map> specList = findSpecList(tbTypeTemplate.getId());//根据模板ID查询规格列表
+            redisTemplate.boundHashOps("specList").put(tbTypeTemplate.getId(),specList);
+        }
+        System.out.println("将品牌列表和规格列表放入缓存...");
     }
 
 }
