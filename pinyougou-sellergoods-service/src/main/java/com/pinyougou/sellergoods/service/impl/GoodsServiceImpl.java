@@ -1,9 +1,6 @@
 package com.pinyougou.sellergoods.service.impl;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
@@ -257,6 +254,23 @@ public class GoodsServiceImpl implements GoodsService {
             goods.setAuditStatus(status);
             goodsMapper.updateByPrimaryKey(goods);
         }
+    }
+
+    /**
+     * 根据商品id和状态 查询item列表
+     *
+     * @param goodsIds
+     * @param status
+     * @return
+     */
+    @Override
+    public List<TbItem> findItemListByGoodsIdandStatus(Long[] goodsIds, String status) {
+        TbItemExample example = new TbItemExample();
+        TbItemExample.Criteria criteria = example.createCriteria();
+        criteria.andStatusEqualTo(status);
+        criteria.andGoodsIdIn(Arrays.asList(goodsIds));
+        List<TbItem> itemList = itemMapper.selectByExample(example);
+        return itemList;
     }
 
 }

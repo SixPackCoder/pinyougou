@@ -256,7 +256,7 @@ app.controller('goodsController', function ($scope, $controller, $location, good
     // 申请中
     // 审核通过
     // 已驳回
-    $scope.status = ['未审核', '审核中', '审核通过', '已驳回'];
+    $scope.status = ['未审核', '审核通过', '审核未通过', '已驳回'];
 
     $scope.itemCatList = [];//商品分类列表
     //商品的上级分类列表  与商品状态的处理方式差不多
