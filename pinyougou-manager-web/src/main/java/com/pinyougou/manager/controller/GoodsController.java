@@ -48,7 +48,7 @@ public class GoodsController {
     @Autowired
     private Destination topicPageDestination;//发送用于生成商品详情页的消息(发布订阅)
     @Autowired
-    private Destination topicPageDeleteDestination;////用于删除静态网页的消息(发布订阅)
+    private Destination topicPageDeleteDestination;////用于删除静态网页的消息(发布订阅方式)
 
     /**
      * 返回全部列表
