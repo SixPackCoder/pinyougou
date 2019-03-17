@@ -1,4 +1,4 @@
-package com.pinyougou.manage.service;
+package com.pinyougou.user.service;
 import java.util.List;
 import com.pinyougou.pojo.TbUser;
 
@@ -21,7 +21,7 @@ public interface UserService {
 	 * 返回分页列表
 	 * @return
 	 */
-	public PageResult findPage(int pageNum,int pageSize);
+	public PageResult findPage(int pageNum, int pageSize);
 	
 	
 	/**
@@ -48,7 +48,7 @@ public interface UserService {
 	 * 批量删除
 	 * @param ids
 	 */
-	public void delete(Long [] ids);
+	public void delete(Long[] ids);
 
 	/**
 	 * 分页
@@ -56,6 +56,17 @@ public interface UserService {
 	 * @param pageSize 每页记录数
 	 * @return
 	 */
-	public PageResult findPage(TbUser user, int pageNum,int pageSize);
-	
+	public PageResult findPage(TbUser user, int pageNum, int pageSize);
+
+	/**
+	 * 给手机发送短信验证码
+	 * @param phone
+	 */
+	public void createSmsCode(String phone);
+
+	/**
+	 * 检验验证码是否正确
+	 * @return
+	 */
+	public Boolean checkSmsCode(String phone,String code);
 }
