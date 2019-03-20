@@ -1,16 +1,26 @@
 package com.pinyougou.user.service.impl;
 
-
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.alibaba.fastjson.JSON;
+import javax.jms.Destination;
+import javax.jms.JMSException;
+import javax.jms.MapMessage;
+import javax.jms.Message;
+import javax.jms.Session;
+
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.jms.core.JmsTemplate;
+import org.springframework.jms.core.MessageCreator;
+
 import com.alibaba.dubbo.config.annotation.Service;
+import com.alibaba.fastjson.JSON;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.pinyougou.mapper.TbUserMapper;
@@ -20,12 +30,6 @@ import com.pinyougou.pojo.TbUserExample.Criteria;
 import com.pinyougou.user.service.UserService;
 
 import entity.PageResult;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.jms.core.JmsTemplate;
-import org.springframework.jms.core.MessageCreator;
-
-import javax.jms.*;
 
 /**
  * 服务实现层
@@ -64,7 +68,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public PageResult findPage(int pageNum, int pageSize) {
         PageHelper.startPage(pageNum, pageSize);
-        Page<TbUser> page = (Page<TbUser>) userMapper.selectByExample(null);
+        Page<TbUser> page=   (Page<TbUser>) userMapper.selectByExample(null);
         return new PageResult(page.getTotal(), page.getResult());
     }
 
@@ -184,11 +188,11 @@ public class UserServiceImpl implements UserService {
             @Override
             public Message createMessage(Session session) throws JMSException {
                 MapMessage message = session.createMapMessage();
-                message.setString("mobile",phone);
-                message.setString("template_code",template_code);
-                message.setString("sign_name",sign_name);
+                message.setString("mobile", phone);
+                message.setString("template_code", template_code);
+                message.setString("sign_name", sign_name);
                 Map map = new HashMap();
-                map.put("code",code);
+                map.put("code", code);
                 message.setString("param", JSON.toJSONString(map));
                 return message;
             }

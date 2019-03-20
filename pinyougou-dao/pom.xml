@@ -12,11 +12,6 @@
     <artifactId>pinyougou-dao</artifactId>
     <packaging>jar</packaging>
     <dependencies>
-
-        <dependency>
-            <groupId>com.github.pagehelper</groupId>
-            <artifactId>pagehelper</artifactId>
-        </dependency>
         <!-- Mybatis -->
         <dependency>
             <groupId>org.mybatis</groupId>
