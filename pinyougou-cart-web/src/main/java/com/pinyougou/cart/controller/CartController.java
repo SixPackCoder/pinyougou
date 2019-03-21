@@ -9,6 +9,7 @@ import com.pinyougou.common.util.CookieUtil;
 import com.pinyougou.pojoGroup.Cart;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -68,12 +69,17 @@ public class CartController {
     }
 
     @RequestMapping("/addGoodsToCartList")
+    //@CrossOrigin(origins = "http://localhost:9105",allowCredentials = "true")//allowCredentials="true"  可以缺省 默认为true
     public Result addGoodsToCartList(Long itemId,Integer num){
+
+        //当然下面两行代码是可以封装的 通过一个注解搞定@CrossOrigin 但是spring4.2版本之后才支持这个注解
+        //跨域请区  允许来自这个域的请求
+        response.setHeader("Access-Control-Allow-Origin","http://localhost:9105");
+        //允许操作cookie
+        response.setHeader("Access-Control-Allow-Credentials","true");
         //当前登录人账号
         String name = SecurityContextHolder.getContext().getAuthentication().getName();
         System.out.println("当前登录人："+name);
-
-
 
         try {
             //提取购物车
@@ -90,7 +96,6 @@ public class CartController {
             }else{//如果登录
                 cartService.saveCartListToRedis(name, cartList);
             }
-
             return new Result(true, "添加购物车成功");
         } catch (Exception e) {
             e.printStackTrace();

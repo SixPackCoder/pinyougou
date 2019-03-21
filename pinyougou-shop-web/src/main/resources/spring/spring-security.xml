@@ -36,7 +36,7 @@
     </authentication-manager>
 
     <!-- 认证类 -->
-    <beans:bean id="userDetailService" class="com.pinyougou.service.UserDetailsServiceImpl">
+    <beans:bean id="userDetailService" class="com.pinyougou.order.service.UserDetailsServiceImpl">
         <beans:property name="sellerService" ref="sellerService"></beans:property>
     </beans:bean>
 

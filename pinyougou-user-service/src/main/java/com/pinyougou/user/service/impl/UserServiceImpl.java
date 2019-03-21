@@ -175,9 +175,9 @@ public class UserServiceImpl implements UserService {
      * @param phone
      */
     @Override
-    public void createSmsCode(String phone) {
+    public void createSmsCode(final String phone) {
         //生成一个六位数的验证码
-        String code = RandomStringUtils.randomNumeric(6);
+        final String code = RandomStringUtils.randomNumeric(6);
         System.out.println("随机生成的验证码:" + code);
 
         //将验证码存入缓存  大key:smscode 小key:手机号
@@ -209,7 +209,7 @@ public class UserServiceImpl implements UserService {
      * @return
      */
     @Override
-    public Boolean checkSmsCode(String phone, String code) {
+    public boolean checkSmsCode(String phone, String code) {
         //从缓存中取得该手机号的验证码(系统生成的正确的验证码)
         String trueCode = (String) redisTemplate.boundHashOps("smsCode").get(phone);
         //判断缓存中验证码是否存在
