@@ -22,7 +22,7 @@ import java.util.List;
 @RequestMapping("/goods")
 public class GoodsController {
 
-	@Reference
+	@Reference(timeout = 10000)
 	private GoodsService goodsService;
 	
 	/**

@@ -21,7 +21,7 @@ import entity.Result;
 @RequestMapping("/itemCat")
 public class ItemCatController {
 
-    @Reference
+    @Reference(timeout = 10000)
     private ItemCatService itemCatService;
 
     /**

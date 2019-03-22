@@ -21,7 +21,7 @@ import entity.Result;
 @RequestMapping("/specification")
 public class SpecificationController {
 
-	@Reference
+	@Reference(timeout = 10000)
 	private SpecificationService specificationService;
 	
 	/**

@@ -19,7 +19,7 @@ import java.util.Map;
 @RequestMapping("/brand")
 public class BrandController {
 
-    @Reference
+    @Reference(timeout = 10000)
     private BrandService brandService;
 
     /**

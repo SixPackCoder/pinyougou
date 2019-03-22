@@ -22,7 +22,7 @@ import entity.Result;
 @RequestMapping("/user")
 public class UserController {
 
-    @Reference
+    @Reference(timeout = 10000)
     private UserService userService;
 
     /**

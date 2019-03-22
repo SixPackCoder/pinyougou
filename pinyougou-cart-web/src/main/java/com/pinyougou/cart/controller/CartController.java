@@ -23,7 +23,7 @@ import entity.Result;
 @RequestMapping("/cart")
 public class CartController {
 
-    @Reference(timeout=6000)
+    @Reference(timeout = 10000)
     private CartService cartService;
 
     @Autowired

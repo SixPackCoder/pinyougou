@@ -19,7 +19,7 @@ import entity.Result;
 @RequestMapping("/content")
 public class ContentController {
 
-	@Reference
+	@Reference(timeout = 10000)
 	private ContentService contentService;
 	
 	/**

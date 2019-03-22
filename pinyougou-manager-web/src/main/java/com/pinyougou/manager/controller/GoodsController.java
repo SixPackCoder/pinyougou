@@ -35,7 +35,7 @@ import javax.jms.Session;
 @RequestMapping("/goods")
 public class GoodsController {
 
-    @Reference
+    @Reference(timeout = 10000)
     private GoodsService goodsService;
 //    @Reference
 //    private ItemSearchService searchService;

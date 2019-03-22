@@ -13,7 +13,7 @@ import com.pinyougou.pojo.TbContent;
 @RequestMapping("/content")
 public class ContentController {
 
-    @Reference
+    @Reference(timeout = 10000)
     private ContentService contentService;
 
     @RequestMapping("/findByCategoryId")

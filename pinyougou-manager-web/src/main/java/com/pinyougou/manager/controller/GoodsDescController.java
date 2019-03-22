@@ -19,7 +19,7 @@ import entity.Result;
 @RequestMapping("/goodsDesc")
 public class GoodsDescController {
 
-	@Reference
+	@Reference(timeout = 10000)
 	private GoodsDescService goodsDescService;
 	
 	/**

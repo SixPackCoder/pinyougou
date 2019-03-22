@@ -23,7 +23,7 @@ import entity.Result;
 @RequestMapping("/address")
 public class AddressController {
 
-    @Reference
+    @Reference(timeout = 10000)
     private AddressService addressService;
 
     /**
